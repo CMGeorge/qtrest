@@ -3,9 +3,10 @@
 
 #include "abstractjsonrestlistmodel.h"
 #include <QtQml>
+#include "qtrest_global.h"
 #include "requests.h"
 
-class JsonRestListModel : public AbstractJsonRestListModel
+class QTREST_LIBRARY_EXPORT JsonRestListModel : public AbstractJsonRestListModel
 {
     Q_OBJECT
 

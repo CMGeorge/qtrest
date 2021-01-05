@@ -18,7 +18,7 @@ QVariantList AbstractJsonRestListModel::getVariantList(QByteArray bytes)
     QJsonArray jsonArray = document.array();
 
     if (parseError.error != QJsonParseError::NoError) {
-        qDebug() << parseError.errorString();
+        qDebug() <<"Error parsing json"<< parseError.errorString();
     }
 
     return jsonArray.toVariantList();

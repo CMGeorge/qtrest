@@ -27,6 +27,7 @@ void BaseRestListModel::declareQML()
 
 void BaseRestListModel::reload()
 {
+//    setRawReply("");
     setLoadingStatus(LoadingStatus::RequestToReload);
     this->fetchMore(QModelIndex());
 }
@@ -107,7 +108,7 @@ void BaseRestListModel::fetchMore(const QModelIndex &parent)
 
     QNetworkReply *reply = fetchMoreImpl(parent);
     connect(reply, &QNetworkReply::finished,
-             this, &BaseRestListModel::fetchMoreFinished);
+            this, &BaseRestListModel::fetchMoreFinished);
 }
 
 void BaseRestListModel::fetchMoreFinished()
@@ -122,9 +123,8 @@ void BaseRestListModel::fetchMoreFinished()
     }
 
     updateHeadersData(reply);
-
-    QVariantList values = getVariantList(reply->readAll());
-
+    setRawReply(reply->readAll());
+    QVariantList values = getVariantList(m_rawReply);
     //prepare vars
     int insertFrom = rowCount();
     int insertCount = rowCount()+values.count();
@@ -198,7 +198,7 @@ void BaseRestListModel::fetchDetail(QString id)
 
     QNetworkReply *reply = fetchDetailImpl(id);
     connect(reply, &QNetworkReply::finished,
-             this, &BaseRestListModel::fetchDetailFinished);
+            this, &BaseRestListModel::fetchDetailFinished);
 }
 
 void BaseRestListModel::fetchDetailFinished()
@@ -374,7 +374,7 @@ QString BaseRestListModel::idField() const
 int BaseRestListModel::idFieldRole() const
 {
     QByteArray obj;
-    obj.append(idField());
+    obj.append(idField().toLatin1());
     return m_roleNames.key(obj);
 }
 
@@ -422,13 +422,13 @@ void BaseRestListModel::updateHeadersData(QNetworkReply *reply)
 {
     //update headers data
     QByteArray currentPage;
-    currentPage.append(m_pagination.currentPageHeader());
+    currentPage.append(m_pagination.currentPageHeader().toLatin1());
 
     QByteArray totalCount;
-    totalCount.append(m_pagination.totalCountHeader());
+    totalCount.append(m_pagination.totalCountHeader().toLatin1());
 
     QByteArray pageCount;
-    pageCount.append(m_pagination.pageCountHeader());
+    pageCount.append(m_pagination.pageCountHeader().toLatin1());
 
     m_pagination.setCurrentPage(reply->rawHeader(currentPage).toInt());
     m_pagination.setTotalCount(reply->rawHeader(totalCount).toInt());
@@ -440,6 +440,7 @@ void BaseRestListModel::updateHeadersData(QNetworkReply *reply)
 
 void BaseRestListModel::reset()
 {
+//    setRawReply("");
     beginResetModel();
     m_items.clear();
     endResetModel();
@@ -463,7 +464,7 @@ void BaseRestListModel::generateRoleNames()
     if (rowCount() > 0) {
         foreach (QString key, keys) {
             QByteArray k;
-            k.append(key);
+            k.append(key.toLatin1());
             if (!m_roleNames.key(k)) {
                 m_roleNamesIndex++;
                 m_roleNames[m_roleNamesIndex] = k;
@@ -559,7 +560,7 @@ void BaseRestListModel::setApiInstance(APIBase *apiInstance)
 
     m_apiInstance->setKnownHeaderValue(APIBase::KnownHeaders::Accept, accept());
     connect(m_apiInstance, &APIBase::replyError,
-                     this, &BaseRestListModel::replyError);
+            this, &BaseRestListModel::replyError);
 
     emit apiInstanceChanged(apiInstance);
 }

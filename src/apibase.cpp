@@ -1,4 +1,7 @@
 #include "apibase.h"
+#include <QMapIterator>
+#include <QByteArray>
+#include <QNetworkRequest>
 
 APIBase::APIBase(QObject *parent)
     : QObject(parent)

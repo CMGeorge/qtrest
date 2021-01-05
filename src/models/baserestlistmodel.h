@@ -7,11 +7,11 @@
 #include "pagination.h"
 #include "detailsmodel.h"
 #include "apibase.h"
-
+#include "qtrest_global.h"
 class QNetworkReply;
 class DetailsModel;
 
-class BaseRestListModel : public QAbstractListModel
+class QTREST_LIBRARY_EXPORT BaseRestListModel : public QAbstractListModel
 {
     Q_OBJECT
     friend DetailsModel;
@@ -51,6 +51,9 @@ public:
     Q_PROPERTY(QNetworkReply::NetworkError loadingErrorCode READ loadingErrorCode WRITE setLoadingErrorCode NOTIFY loadingErrorCodeChanged)
     Q_PROPERTY(int count READ count NOTIFY countChanged)
 
+    Q_PROPERTY(QByteArray rawReply READ rawReply WRITE setRawReply NOTIFY rawReplyChanged)
+
+
     //current status of model
     enum LoadingStatus {
         Idle,
@@ -89,6 +92,11 @@ public:
     bool enableDetailsCaching() const;
     void setEnableDetailsCaching(bool enableDetailsCaching);
 
+    QByteArray rawReply() const
+    {
+        return m_rawReply;
+    }
+
 signals:
     //Properties signals
     void countChanged();
@@ -103,6 +111,8 @@ signals:
     void acceptChanged(QByteArray accept);
     void apiInstanceChanged(APIBase *apiInstance);
     void enableDetailsCachingChanged(bool enableDetailsCaching);
+
+    void rawReplyChanged(QByteArray rawReply);
 
 public slots:
     void reload();
@@ -125,6 +135,15 @@ public slots:
     void setIdField(QString idField);
 
     void setApiInstance(APIBase *apiInstance);
+
+    void setRawReply(QByteArray rawReply)
+    {
+        if (m_rawReply == rawReply)
+            return;
+
+        m_rawReply = rawReply;
+        emit rawReplyChanged(m_rawReply);
+    }
 
 protected:
     //reimplement this for call specific API method GET list
@@ -188,6 +207,7 @@ private:
     APIBase *m_apiInstance;
     bool m_enableDetailsCaching;
     QQmlPropertyMap m_details;
+    QByteArray m_rawReply;
 };
 
 #endif // BASERESTLISTMODEL_H
